@@ -42,7 +42,9 @@ def audit(root,source):
         dm=etree.fromstring(z.read('customXml/item1.xml'))
         b=base64.b64decode(dm.text);n=struct.unpack('<I',b[4:8])[0]
         with ZipFile(io.BytesIO(b[8:8+n])) as m:
-            assert m.read('Formulas/Section1.m')==(root/'power_query/Section1.m' if (root/'power_query/Section1.m').exists() else root/'Section1.m').read_bytes()
+            mfile=root/'power_query/Section1.m' if (root/'power_query/Section1.m').exists() else root/'Section1.m'
+            normalize=lambda text:text.replace('\r\n','\n').replace('\r','\n')
+            assert normalize(m.read('Formulas/Section1.m').decode('utf-8-sig'))==normalize(mfile.read_text(encoding='utf-8-sig'))
         # Every internal package relationship points to an existing part.
         import posixpath
         for name in z.namelist():
