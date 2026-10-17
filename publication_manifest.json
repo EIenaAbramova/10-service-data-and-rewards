@@ -1,0 +1,22 @@
+{
+  "data": "entirely synthetic, independently constructed",
+  "private_source_identifiers_found": 0,
+  "private_source_names_contacts_policies_found": 0,
+  "files": [
+    ".gitignore",
+    "add_native_features.py",
+    "analyze.py",
+    "audit.json",
+    "audit.py",
+    "build_workbook.mjs",
+    "EKMS_2407.xlsx",
+    "EKMS_2408.xlsx",
+    "EKMS_2409.xlsx",
+    "make_demo.mjs",
+    "README.md",
+    "requirements.txt",
+    "Section1.m",
+    "Клиника_готовое_тестовое.xlsx",
+    "Конспект.md"
+  ]
+}

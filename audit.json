@@ -1,0 +1,48 @@
+{
+  "status": "PASS",
+  "controls": {
+    "rows": 16,
+    "patients_period": 12,
+    "compensation": 1770001.01,
+    "reward": 37000,
+    "patient_months": 13
+  },
+  "monthly": [
+    [
+      "2024-07",
+      5,
+      4,
+      560000.0,
+      1,
+      5000
+    ],
+    [
+      "2024-08",
+      7,
+      5,
+      640001.0,
+      2,
+      16000
+    ],
+    [
+      "2024-09",
+      4,
+      4,
+      570000.01,
+      2,
+      16000
+    ]
+  ],
+  "checks": [
+    "source rows and compensation",
+    "patient-month payments and payouts",
+    "distinct patient counts per group",
+    "formula caches without Excel errors",
+    "native pivot cache",
+    "six Power Query connections",
+    "embedded M matches source",
+    "XML and relationship integrity",
+    "threshold and age boundary cases"
+  ],
+  "desktop_excel_refresh": "NOT RUN — Excel is not installed in this environment"
+}
