@@ -10,13 +10,13 @@ from analyze import analyze,verify,number
 
 def audit(root,source):
     verify();d=analyze(source)
-    path=root/'Клиника_готовое_тестовое.xlsx'
+    path=root/'10_Расчёт_вознаграждений.xlsx'
     w=openpyxl.load_workbook(path,data_only=True)
     f=openpyxl.load_workbook(path,data_only=False)
-    assert w['ЕКМС'].max_row-1==d['controls']['rows']
+    assert w['Услуги'].max_row-1==d['controls']['rows']
     assert w['Уникальные'].max_row-1==len(d['unique'])
     assert w['Пациент месяц'].max_row-1==len(d['ledger'])
-    assert sum(number(w['ЕКМС'].cell(i,8).value) for i in range(2,w['ЕКМС'].max_row+1))==number(d['controls']['compensation'])
+    assert sum(number(w['Услуги'].cell(i,8).value) for i in range(2,w['Услуги'].max_row+1))==number(d['controls']['compensation'])
     ledger={(r[0],r[1]):r for r in d['ledger']}
     for row in list(w['Пациент месяц'].values)[1:]:
         expected=ledger[(row[0],str(row[1]))]

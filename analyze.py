@@ -1,4 +1,4 @@
-"""Read EKMS exports; validate and prepare auditable workbook inputs. No patient names required."""
+"""Read Services exports; validate and prepare auditable workbook inputs. No patient names required."""
 from pathlib import Path
 from decimal import Decimal
 from datetime import datetime
@@ -28,8 +28,8 @@ def reward(month, child, amount, representative):
 
 def analyze(folder):
     rows, files = [], []
-    for p in sorted(Path(folder).glob('EKMS_*.xlsx')):
-        ws = openpyxl.load_workbook(p, data_only=True)['EKMS']
+    for p in sorted(Path(folder).glob('Services_*.xlsx')):
+        ws = openpyxl.load_workbook(p, data_only=True)['Services']
         raw = list(ws.values)
         headers = [clean(x).lower() for x in raw[0]]
         count = 0

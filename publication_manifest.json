@@ -9,14 +9,14 @@
     "audit.json",
     "audit.py",
     "build_workbook.mjs",
-    "EKMS_2407.xlsx",
-    "EKMS_2408.xlsx",
-    "EKMS_2409.xlsx",
+    "Services_2407.xlsx",
+    "Services_2408.xlsx",
+    "Services_2409.xlsx",
     "make_demo.mjs",
     "README.md",
     "requirements.txt",
     "Section1.m",
-    "Клиника_готовое_тестовое.xlsx",
+    "10_Расчёт_вознаграждений.xlsx",
     "Конспект.md"
   ]
 }

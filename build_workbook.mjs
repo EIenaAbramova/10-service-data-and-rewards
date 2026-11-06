@@ -4,7 +4,7 @@ import {Workbook,SpreadsheetFile} from '@oai/artifact-tool';
 const root=process.argv[2]||'.';
 const d=JSON.parse(await fs.readFile(path.join(root,'qa/analysis.json'),'utf8'));
 const wb=Workbook.create();
-const names=['Итоги','Сводная','Вознаграждения','Пациент месяц','ЕКМС','Уникальные','Параметры'];
+const names=['Итоги','Сводная','Вознаграждения','Пациент месяц','Услуги','Уникальные','Параметры'];
 const sheets=Object.fromEntries(names.map(n=>[n,wb.worksheets.add(n)]));
 function block(name,headers,rows,tableName,start=1){
  const s=sheets[name]; const matrix=[headers,...rows];
@@ -19,11 +19,11 @@ function block(name,headers,rows,tableName,start=1){
  return s;
 }
 const R=d.rows.length+1,L=d.ledger.length+1;
-block('ЕКМС',['Файл','Строка','id пациента','возраст','дата услуги','Месяц','клиника услуги','компенсация, руб.','представитель','Возрастная категория','Канал привлечения'],d.rows,'EKMSData');
-sheets['ЕКМС'].getRange(`D2:D${R}`).setNumberFormat('0.00');
-sheets['ЕКМС'].getRange(`H2:H${R}`).setNumberFormat('#,##0.00');
-sheets['ЕКМС'].getRange(`I1:I${R}`).format.columnWidth=42;
-sheets['ЕКМС'].getRange(`J1:K${R}`).format.columnWidth=24;
+block('Услуги',['Файл','Строка','id пациента','возраст','дата услуги','Месяц','клиника услуги','компенсация, руб.','представитель','Возрастная категория','Канал привлечения'],d.rows,'ServicesData');
+sheets['Услуги'].getRange(`D2:D${R}`).setNumberFormat('0.00');
+sheets['Услуги'].getRange(`H2:H${R}`).setNumberFormat('#,##0.00');
+sheets['Услуги'].getRange(`I1:I${R}`).format.columnWidth=42;
+sheets['Услуги'].getRange(`J1:K${R}`).format.columnWidth=24;
 block('Пациент месяц',['Месяц','id пациента','представитель','Возрастная категория','Оплата за месяц, руб.','Вознаграждение, руб.','Строк услуг'],d.ledger,'PatientMonths');
 sheets['Пациент месяц'].getRange(`C1:C${L}`).format.columnWidth=42;
 sheets['Пациент месяц'].getRange(`D1:G${L}`).format.columnWidth=25;
@@ -60,7 +60,7 @@ sheets['Итоги'].getRange('D6:D8').setNumberFormat('#,##0.00');
 sheets['Итоги'].getRange('F6:F8').setNumberFormat('#,##0');
 for(let i=0;i<d.summary.length;i++){
  const r=i+6;
- sheets['Итоги'].getRange(`D${r}`).formulas=[[`=SUMIFS('ЕКМС'!$H$2:$H$${R},'ЕКМС'!$F$2:$F$${R},A${r})`]];
+ sheets['Итоги'].getRange(`D${r}`).formulas=[[`=SUMIFS('Услуги'!$H$2:$H$${R},'Услуги'!$F$2:$F$${R},A${r})`]];
  sheets['Итоги'].getRange(`F${r}`).formulas=[[`=SUMIFS('Пациент месяц'!$F$2:$F$${L},'Пациент месяц'!$A$2:$A$${L},A${r})`]];
 }
 sheets['Итоги'].getRange('B13').formulas=[['=SUM(D6:D8)']];
@@ -74,7 +74,7 @@ sheets['Сводная'].getRange('B2').values=[['Клиники и каналы
 sheets['Сводная'].getRange('A2').format.font={name:'Arial',size:15,bold:true};
 sheets['Сводная'].getRange(`A4:A${pivotRows.length+4}`).format.columnWidth=43;
 sheets['Сводная'].getRange(`B4:B${pivotRows.length+4}`).format.columnWidth=23;
-block('Параметры',['Параметр','Значение'],[['Папка выгрузок',process.argv.includes('--public')?'C:\\EKMS_DEMO':path.resolve(root,'Выгрузки')],['Период','2024-07 — 2024-09'],['Июль: порог, руб.',100000],['Июль: выплата, руб.',5000],['Август и сентябрь: порог, руб.',120000],['Август и сентябрь: выплата, руб.',8000]],null);
+block('Параметры',['Параметр','Значение'],[['Папка выгрузок',process.argv.includes('--public')?'C:\\Services_DEMO':path.resolve(root,'Выгрузки')],['Период','2024-07 — 2024-09'],['Июль: порог, руб.',100000],['Июль: выплата, руб.',5000],['Август и сентябрь: порог, руб.',120000],['Август и сентябрь: выплата, руб.',8000]],null);
 sheets['Параметры'].getRange('A1:A7').format.columnWidth=43;
 sheets['Параметры'].getRange('B1:B7').format.columnWidth=80;
 sheets['Параметры'].getRange('B2').format.fill='#FFF2CC';
@@ -83,5 +83,5 @@ sheets['Параметры'].getRange('A2:B2').format.rowHeight=42;
 wb.recalculate();
 await fs.writeFile(path.join(root,'qa/inspection.txt'),(await wb.inspect({kind:'region',sheetId:'Итоги',range:'A5:F14',maxChars:4500,tableMaxRows:12,tableMaxCols:6})).ndjson);
 await fs.writeFile(path.join(root,'qa/summary.png'),new Uint8Array(await (await wb.render({sheetName:'Итоги',autoCrop:'all',scale:1.3,format:'png'})).arrayBuffer()));
-await (await SpreadsheetFile.exportXlsx(wb)).save(path.join(root,'Клиника_готовое_тестовое.xlsx'));
+await (await SpreadsheetFile.exportXlsx(wb)).save(path.join(root,'10_Расчёт_вознаграждений.xlsx'));
 console.log('Workbook exported',d.controls);

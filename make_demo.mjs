@@ -23,10 +23,10 @@ const rows={
   ['D011',11,'03.09.2024','Клиника Б',120000.01,'Партнёр Б'],
   ['D012',12,'04.09.2024','Клиника Б',200000,'  ']]};
 for(const [month,records]of Object.entries(rows)){
- const w=Workbook.create(),s=w.worksheets.add('EKMS');
+ const w=Workbook.create(),s=w.worksheets.add('Services');
  s.getRange(`A1:F${records.length+1}`).values=[['id пациента','возраст','дата услуги','клиника услуги','компенсация, руб.','представитель'],...records];
  s.getRange('A1:F1').format={fill:'#244763',font:{bold:true,color:'#FFFFFF'}};
  s.getRange(`A1:F${records.length+1}`).format.columnWidth=23;
- await(await SpreadsheetFile.exportXlsx(w)).save(path.join(out,`EKMS_24${month}.xlsx`));
+ await(await SpreadsheetFile.exportXlsx(w)).save(path.join(out,`Services_24${month}.xlsx`));
 }
 console.log('Synthetic sources exported');

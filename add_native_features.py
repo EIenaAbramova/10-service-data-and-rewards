@@ -19,7 +19,7 @@ def xml(x):return E.tostring(x,encoding='UTF-8',xml_declaration=True,standalone=
 def part(b):return struct.pack('<I',len(b))+b
 
 def add(root):
-    p=root/'Клиника_готовое_тестовое.xlsx'
+    p=root/'10_Расчёт_вознаграждений.xlsx'
     d=json.loads((root/'qa/analysis.json').read_text(encoding='utf-8'))
     with ZipFile(p) as z: parts={n:z.read(n) for n in z.namelist()}
     types=E.fromstring(parts['[Content_Types].xml'])
@@ -37,7 +37,7 @@ def add(root):
         calc=book.find('{'+S+'}calcPr')
         book.insert(list(book).index(calc) if calc is not None else len(book),defined)
     sub(defined,'definedName',name='SourceFolder').text="'Параметры'!$B$2"
-    queries=[('ЕКМС','EKMSData','ЕКМС',5),('Уникальные','UniquePatients','Уникальные',6),
+    queries=[('Услуги','ServicesData','Услуги',5),('Уникальные','UniquePatients','Уникальные',6),
              ('ПациентМесяц','PatientMonths','Пациент месяц',4),('Вознаграждения','PartnerRewards','Вознаграждения',3),
              ('ИтогиМесяцев','MonthlySummary','Итоги',1),('ИтогиПериода','PeriodSummary','Итоги',1)]
     # Build query package and per-query load metadata from public schema.

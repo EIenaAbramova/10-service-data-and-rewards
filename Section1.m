@@ -8,7 +8,7 @@ shared CleanText = (x as any) as text =>
 shared ReadFile = (content as binary, fileName as text) as table =>
 let
     Book = Excel.Workbook(content, null, true),
-    Sheet = Book{[Item="EKMS", Kind="Sheet"]}[Data],
+    Sheet = Book{[Item="Services", Kind="Sheet"]}[Data],
     Headers = Table.TransformColumnNames(Table.PromoteHeaders(Sheet, [PromoteAllScalars=true]), each Text.Lower(CleanText(_))),
     Indexed = Table.AddIndexColumn(Headers, "Строка", 2, 1, Int64.Type),
     Selected = Table.SelectColumns(Indexed, {"Строка", "id пациента", "возраст", "дата услуги", "клиника услуги", "компенсация, руб.", "представитель"}),
@@ -16,10 +16,10 @@ let
     WithFile = Table.AddColumn(NonEmpty, "Файл", each fileName, type text)
 in WithFile;
 
-shared ЕКМС =
+shared Услуги =
 let
-    Files = Table.SelectRows(Folder.Contents(SourceFolder), each Text.StartsWith([Name], "EKMS_") and Text.Lower([Extension]) = ".xlsx" and [Attributes]?[Hidden]? <> true),
-    Combined = if Table.RowCount(Files)=0 then error "Нет файлов EKMS_*.xlsx в выбранной папке" else Table.Combine(List.Transform(Table.ToRecords(Files), each ReadFile([Content], [Name]))),
+    Files = Table.SelectRows(Folder.Contents(SourceFolder), each Text.StartsWith([Name], "Services_") and Text.Lower([Extension]) = ".xlsx" and [Attributes]?[Hidden]? <> true),
+    Combined = if Table.RowCount(Files)=0 then error "Нет файлов Services_*.xlsx в выбранной папке" else Table.Combine(List.Transform(Table.ToRecords(Files), each ReadFile([Content], [Name]))),
     Typed = Table.TransformColumns(Combined, {
         {"id пациента", each if CleanText(_)="" then error "Нет id пациента" else CleanText(_), type text},
         {"возраст", each if _=null then error "Нет возраста" else Number.From(_, "ru-RU"), type number},
@@ -37,13 +37,13 @@ in Result;
 
 shared Уникальные =
 let
-    Keys = Table.Distinct(Table.SelectColumns(ЕКМС, {"Месяц","клиника услуги","Канал привлечения","id пациента"})),
+    Keys = Table.Distinct(Table.SelectColumns(Услуги, {"Месяц","клиника услуги","Канал привлечения","id пациента"})),
     Unit = Table.AddColumn(Keys, "Единица", each 1, Int64.Type)
 in Table.Sort(Unit, {{"Месяц",Order.Ascending},{"клиника услуги",Order.Ascending},{"Канал привлечения",Order.Ascending},{"id пациента",Order.Ascending}});
 
 shared ПациентМесяц =
 let
-    Grouped = Table.Group(ЕКМС, {"Месяц","id пациента"}, {
+    Grouped = Table.Group(Услуги, {"Месяц","id пациента"}, {
         {"представитель", each let r=List.Distinct(List.Select([представитель], each _<>"")) in if List.Count(r)>1 then error "Несколько представителей за месяц" else if List.IsEmpty(r) then "" else r{0}, type text},
         {"Возрастная категория", each let c=List.Distinct([Возрастная категория]) in if List.Count(c)<>1 then error "Возрастная категория изменилась за месяц" else c{0}, type text},
         {"Оплата за месяц, руб.", each List.Sum([#"компенсация, руб."]), Currency.Type},
@@ -68,7 +68,7 @@ in Table.Sort(Total, {{"представитель",Order.Ascending}});
 
 shared ИтогиМесяцев =
 let
-    Source = Table.Group(ЕКМС, {"Месяц"}, {
+    Source = Table.Group(Услуги, {"Месяц"}, {
         {"Строк услуг", each Table.RowCount(_), Int64.Type},
         {"Уникальных пациентов", each List.Count(List.Distinct([id пациента])), Int64.Type},
         {"Компенсация, руб.", each List.Sum([#"компенсация, руб."]), Currency.Type}
@@ -82,8 +82,8 @@ let
 in Table.Sort(Expanded, {{"Месяц",Order.Ascending}});
 
 shared ИтогиПериода = #table({"Показатель за период","Значение"}, {
-    {"Строк услуг",Table.RowCount(ЕКМС)},
-    {"Уникальных пациентов",List.Count(List.Distinct(ЕКМС[id пациента]))},
-    {"Компенсация, руб.",List.Sum(ЕКМС[#"компенсация, руб."])},
+    {"Строк услуг",Table.RowCount(Услуги)},
+    {"Уникальных пациентов",List.Count(List.Distinct(Услуги[id пациента]))},
+    {"Компенсация, руб.",List.Sum(Услуги[#"компенсация, руб."])},
     {"Вознаграждение, руб.",List.Sum(ПациентМесяц[#"Вознаграждение, руб."])}
 });
